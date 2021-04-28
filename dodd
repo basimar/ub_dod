@@ -1,0 +1,51 @@
+#!/bin/csh -f
+
+# dodd - Document Delivery Demon (V.21)
+# rev. 05.02.2013/ava
+
+set myself=$0
+set prog=$myself:gt
+set daemon='perl /exlibris/aleph/u22_1/dsv51/dod/bin/dodd.pl'
+set version='V.22'
+set running=`pgrep -fx "${daemon}"`
+
+if ($#argv == 0 ) then
+    echo "usage: $prog (start|stop|restart|check)"
+else
+    switch ($argv[1])
+        case start:
+            if ($#running == 0) then
+                echo "${prog}: starting dod daemon ${version}"
+                $daemon &
+            else
+                echo "dod daemon ${version} already running"
+            endif
+            breaksw
+        case stop:
+            if ( $#running == 0 ) then
+                echo "dod daemon ${version} not running"
+            else
+                echo "${prog}: stopping dod daemon ${version}"
+                pkill -HUP -fx "$daemon"
+            endif
+            breaksw
+        case restart:
+            if ( $#running != 0 ) then
+                pkill -HUP -fx "$daemon"
+            endif
+            $daemon &
+            echo "${prog}: dod daemon ${version} restarted"
+            breaksw
+        case check:
+            if ($#running == 0) then
+                echo "dod daemon ${version} not running"
+            else
+                echo "dod daemon ${version} running"
+            endif
+            breaksw
+        default:
+            echo "usage: $prog (start|stop|restart|check)"
+            breaksw
+    endsw
+endif
+
